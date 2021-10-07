@@ -74,6 +74,18 @@ namespace OS_lab2
 		protected Action onFirstSelectAction, onMenuLeaveAction;
 		bool onFirstSelectActionInvoked = false;
 
+		public static Menu CreateFromEnum<T>(string header, Action<T> itemSelectFunction) where T : Enum
+		{
+			T[] values = (T[])Enum.GetValues(typeof(T));
+			var items = new IMenuItem[values.Length];
+			for (int i = 0; i < values.Length; i++)
+			{
+				T val = values[i]; //so the delegate wont corrupt
+				items[i] = new MenuItem(values[i].ToString(), () => itemSelectFunction(val));
+			}
+			return new Menu(header, items);
+		}
+
 		public Menu(string menuHeader, IMenuItem[] menuItems)
 		{
 			this.menuHeader = menuHeader;
