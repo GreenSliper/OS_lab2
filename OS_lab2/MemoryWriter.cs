@@ -11,9 +11,15 @@ namespace OS_lab2
 
 	public class MemoryWriter : MemoryRegionManager, IMemoryWriter
 	{
+		//CopyMemory is actually an alias for RtlCopyMemory
 		[DllImport("kernel32.dll", EntryPoint = "RtlCopyMemory", SetLastError = false)]
 		public static extern void CopyMemory(ulong dest, IntPtr src, uint count);
 
+		/// <summary>
+		/// Print some RAM bytes interpreted as chars
+		/// </summary>
+		/// <param name="addr">memory start address</param>
+		/// <param name="length">character count</param>
 		protected void PrintMemoryChars(ulong addr, int length)
 		{
 			for (ulong i = 0; i < (ulong)length; i++)
@@ -36,7 +42,7 @@ namespace OS_lab2
 											  MEM_ALLOCATION_PROTECT.PAGE_WRITECOPY |
 											  MEM_ALLOCATION_PROTECT.PAGE_EXECUTE_READWRITE |
 											  MEM_ALLOCATION_PROTECT.PAGE_EXECUTE_WRITECOPY);
-
+				//if memory is writable
 				if ((info.allocationProtect & accessibleFlags) != 0)
 				{
 					fixed (char *d = data.ToCharArray())
