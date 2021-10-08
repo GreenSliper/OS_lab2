@@ -21,16 +21,16 @@ namespace OS_lab2
 	public class MemoryRegionManager : MemoryInfoManager, IMemoryRegionManager
 	{
 		[DllImport("kernel32.dll", SetLastError = true)]
-		private static extern IntPtr VirtualQuery(ulong lpAddress, out MEMORY_BASIC_INFORMATION lpBuffer, IntPtr dwLength);
+		protected static extern IntPtr VirtualQuery(ulong lpAddress, out MEMORY_BASIC_INFORMATION lpBuffer, IntPtr dwLength);
 
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-		private static extern IntPtr VirtualAlloc(ulong lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
+		protected static extern IntPtr VirtualAlloc(ulong lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
 		
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-		private static extern bool VirtualFree(ulong lpAddress, uint dwSize, uint dwFreeType);
+		protected static extern bool VirtualFree(ulong lpAddress, uint dwSize, uint dwFreeType);
 
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-		private static extern bool VirtualProtect(ulong lpAddress, uint dwSize, uint newProtect, [Out] out uint oldProtect);
+		protected static extern bool VirtualProtect(ulong lpAddress, uint dwSize, uint newProtect, [Out] out uint oldProtect);
 
 		private static bool TryParseHex(string hex, out ulong result)
 		{
@@ -49,13 +49,20 @@ namespace OS_lab2
 				return false;
 			}
 		}
-		[STAThread]
-		public unsafe void DefineSegmentState()
+
+		protected ulong ConsoleReadHex()
 		{
 			Console.WriteLine("Input hex address:");
 			ulong addr;
 			while (!TryParseHex(Console.ReadLine(), out addr))
 				Console.WriteLine("Incorrect hex number! Try again");
+			return addr;
+		}
+
+		[STAThread]
+		public unsafe void DefineSegmentState()
+		{
+			ulong addr = ConsoleReadHex();
 			MEMORY_BASIC_INFORMATION buf = new MEMORY_BASIC_INFORMATION();
 			if ((uint)VirtualQuery(addr, out buf, (IntPtr)Marshal.SizeOf(buf)) != 0)
 			{
@@ -67,17 +74,12 @@ namespace OS_lab2
 				Console.WriteLine($"Type: {(MEM_TYPE)buf.lType}");
 			}
 			else
-			{
 				Console.WriteLine($"Error occured. Error code: {GetLastError()}");
-			}
 		}
 
 		public void FreeRegion()
 		{
-			Console.WriteLine("Input hex address:");
-			ulong addr;
-			while (!TryParseHex(Console.ReadLine(), out addr))
-				Console.WriteLine("Incorrect hex number! Try again");
+			ulong addr = ConsoleReadHex();
 			if (VirtualFree(addr, 0, (uint)MEM_FREE_TYPE.MEM_RELEASE))
 				Console.WriteLine("Memory freed successfully!");
 			else
@@ -89,10 +91,7 @@ namespace OS_lab2
 
 		public void ProtectRegion(MemoryProtection memoryProtectionLevel)
 		{
-			Console.WriteLine("Input hex address:");
-			ulong addr;
-			while (!TryParseHex(Console.ReadLine(), out addr))
-				Console.WriteLine("Incorrect hex number! Try again");
+			ulong addr = ConsoleReadHex();
 			uint oldProtect = 0;
 			if (VirtualProtect(addr, 4, (uint)memoryProtectionLevel, out oldProtect))
 				Console.WriteLine($"Memory protection level changed successfully! Old protection level: {(MemoryProtection)oldProtect}");
@@ -108,11 +107,7 @@ namespace OS_lab2
 			GetSystemInfo(out SYSTEM_INFO_WCE50 info);
 			ulong addr = 0;
 			if (!automatic)
-			{
-				Console.WriteLine("Input address:");
-				while (!TryParseHex(Console.ReadLine(), out addr))
-					Console.WriteLine("Incorrect hex number! Try again");
-			}
+				addr = ConsoleReadHex();
 			uint memst = (uint)MEM_STATE.MEM_RESERVE;
 			if (physical)
 				memst |= (uint)MEM_STATE.MEM_COMMIT;
