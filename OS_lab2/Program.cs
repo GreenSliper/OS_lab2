@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace OS_lab2
 {
@@ -31,8 +32,33 @@ namespace OS_lab2
 					new MenuItem("Free region", regionManager.FreeRegion)
 				}),
 
-				new MenuItem("Write memory cells", memoryWriter.WriteMemoryCells)
+				new MenuItem("Write memory cells", memoryWriter.WriteMemoryCells),
+				new Menu("Part 2: projected memory", new IMenuItem[]
+					{
+						new MenuItem("Open projected memory writer", StartMemoryWriter),
+						new MenuItem("Open projected memory reader", StartMemoryReader)
+					})
 			});
+
+		static void StartMemoryWriter()
+		{
+			using (var pr = new Process())
+			{
+				pr.StartInfo.FileName = @"..\..\..\..\ProjectedMemoryWriter\bin\Debug\net5.0\ProjectedMemoryWriter.exe";
+				pr.StartInfo.UseShellExecute = true;
+				pr.Start();
+			}
+		}
+
+		static void StartMemoryReader()
+		{
+			using (var pr = new Process())
+			{
+				pr.StartInfo.FileName = @"..\..\..\..\ProjectedMemoryReader\bin\Debug\net5.0\ProjectedMemoryReader.exe";
+				pr.StartInfo.UseShellExecute = true;
+				pr.Start();
+			}
+		}
 
 		static void Main(string[] args)
 		{

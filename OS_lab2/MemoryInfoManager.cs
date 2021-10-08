@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using static OS_lab2.WinApi;
+using OS_lab2.WinApi;
 
 namespace OS_lab2
 {

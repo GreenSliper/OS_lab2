@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using static OS_lab2.WinApi;
+using OS_lab2.WinApi;
 
 namespace OS_lab2
 {
@@ -20,7 +20,7 @@ namespace OS_lab2
 		/// </summary>
 		/// <param name="addr">memory start address</param>
 		/// <param name="length">character count</param>
-		protected void PrintMemoryChars(ulong addr, int length)
+		protected static void PrintMemoryChars(ulong addr, int length)
 		{
 			for (ulong i = 0; i < (ulong)length; i++)
 			{
@@ -29,6 +29,27 @@ namespace OS_lab2
 			}
 			Console.WriteLine();
 		}
+
+		protected unsafe bool TryCopyMemoryString(ulong addr, string s)
+		{
+			char[] chars = s.ToCharArray();
+			fixed (char* c = chars)
+			{
+				CopyMemory(addr, new IntPtr(c), (uint)s.Length * sizeof(char));
+				uint err = GetLastError();
+				if (err == 0)
+				{
+					Console.WriteLine("Memory written successfully!");
+					return true;
+				}
+				else
+				{
+					Console.WriteLine($"Error writing memory. Error code: {err}");
+					return false;
+				}
+			}
+		}
+
 		public unsafe void WriteMemoryCells()
 		{
 			ulong addr = ConsoleReadHex();
@@ -45,20 +66,8 @@ namespace OS_lab2
 				//if memory is writable
 				if ((info.allocationProtect & accessibleFlags) != 0)
 				{
-					fixed (char *d = data.ToCharArray())
-					{
-						CopyMemory(addr, new IntPtr(d), length);
-						uint err = GetLastError();
-						if (err == 0)
-							Console.WriteLine("Memory written successfully!");
-						else
-						{
-							Console.WriteLine($"Error writing memory. Error code: {err}");
-							return;
-						}
-						Console.WriteLine("Memory written:");
-						PrintMemoryChars(addr, data.Length);
-					}
+					TryCopyMemoryString(addr, data);
+					PrintMemoryChars(addr, data.Length);
 				}
 				else
 					Console.WriteLine("Memory protection level does not allow writing bytes!");

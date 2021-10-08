@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OS_lab2
 {
-    public static class WinApi
+    namespace WinApi
     {
         public enum ProcessorArchitecture : int
         {
@@ -143,6 +143,74 @@ namespace OS_lab2
             /// placeholder with a private allocation using VirtualAlloc2
             /// </summary>
             MEM_PRESERVE_PLACEHOLDER = 0x00000002
+        }
+
+        [Flags]
+        public enum FileMapProtection : uint
+        {
+            PageReadonly = 0x02,
+            PageReadWrite = 0x04,
+            PageWriteCopy = 0x08,
+            PageExecuteRead = 0x20,
+            PageExecuteReadWrite = 0x40,
+            SectionCommit = 0x8000000,
+            SectionImage = 0x1000000,
+            SectionNoCache = 0x10000000,
+            SectionReserve = 0x4000000,
+        }
+        public enum FileMapAccess : uint
+        {
+            Copy = 1,
+            Write = 2,
+            Read = 4,
+            AllAccess = 983071,
+            Execute = 32,
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class SECURITY_ATTRIBUTES
+        {
+            public uint length;
+            public IntPtr securityDescriptor;
+            public bool inheritHandle;
+        }
+
+        public enum DesiredAccess : uint
+        {
+            GENERIC_READ = 0x80000000,
+            GENERIC_WRITE = 0x40000000,
+            GENERIC_EXECUTE = 0x20000000,
+            GENERIC_ALL = 0x10000000
+        }
+
+        [Flags]
+        public enum ShareMode : uint
+        {
+            None = 0,
+            FILE_SHARE_READ = 1,
+            FILE_SHARE_WRITE = 2,
+            FILE_SHARE_DELETE = 4
+        }
+
+        public enum CreationDisposition : uint
+        {
+            CREATE_NEW = 1,
+            CREATE_ALWAYS = 2,
+            OPEN_EXISTING = 3,
+            OPEN_ALWAYS = 4,
+            TRUNCATE_EXISTING = 5
+        }
+
+        public enum FileAttributes : uint
+        {
+            FILE_ATTRIBUTE_READONLY = 0x1,
+            FILE_ATTRIBUTE_HIDDEN = 0x2,
+            FILE_ATTRIBUTE_SYSTEM = 0x4,
+            FILE_ATTRIBUTE_ARCHIVE = 0x20,
+            FILE_ATTRIBUTE_NORMAL = 0x80,
+            FILE_ATTRIBUTE_TEMPORARY = 0x100,
+            FILE_ATTRIBUTE_OFFLINE = 0x1000,
+            FILE_ATTRIBUTE_ENCRYPTED = 0x4000
         }
     }
 }
